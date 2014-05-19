@@ -11,6 +11,14 @@ module.exports = {
         serverMode: serverMode.active, // or serverMode.passive
         port: 9007,
         url: 'http://localhost:9007'
+    },
+    cacheServer: {
+        serverMode: serverMode.active,
+        port: 9009,
+        targetServer: {
+            hostname:'localhost',
+            port: 9005
+        }
     }
 };
 

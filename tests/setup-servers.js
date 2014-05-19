@@ -1,7 +1,8 @@
 /*global require */
 
 var restify = require('restify'),
-    testServer = require('../lib/test-server'),
+    testServer = require('../lib/http-replay-server'),
+    cacheServer = require('../lib/cache-server'),
     serverConfig = require('./server-config');
 
 // Create the actual server that the test server acts as a proxy for.
@@ -19,7 +20,7 @@ function createTargetServer() {
     }
 
     var server = restify.createServer({
-        name: 'myapp',
+        name: 'Target Server',
         version: '1.0.0'
     });
     server.use(restify.acceptParser(server.acceptable));
@@ -41,7 +42,7 @@ function createTestServer() {
         serverMode: serverConfig.testServer.serverMode,
         port: serverConfig.testServer.port,
         targetServerUrl: serverConfig.targetServer.url,
-        databaseDirectory: 'C:\\Users\\coding\\Documents\\GitHub\\test-server\\db-files\\',
+        databaseDirectory: 'C:\\Users\\coding\\Documents\\GitHub\\http-replay-server\\db-files\\',
         requestFilter: function (req, resp) {
             if (req.url.indexOf('\/hello') === 0) {
                 return false; // Ignore the intercept request
@@ -51,9 +52,18 @@ function createTestServer() {
     });
 }
 
-createTargetServer();
-createTestServer();
+function createCacheServer() {
+    cacheServer.createServer({
+        port: serverConfig.cacheServer.port,
+        serverMode: serverConfig.cacheServer.serverMode,
+        targetServerUrl: serverConfig.targetServer.url,
+        databaseDirectory: 'C:\\Users\\coding\\Documents\\GitHub\\http-replay-server\\db-files\\'
+    });
+}
 
+createTargetServer();
+//createTestServer();
+createCacheServer();
 // test: http://localhost:9006/hello/some
 
 
