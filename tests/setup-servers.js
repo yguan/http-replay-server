@@ -1,12 +1,11 @@
 /*global require */
 
 var restify = require('restify'),
-    testServer = require('../lib/http-replay-server'),
-    cacheServer = require('../lib/cache-server'),
-    serverConfig = require('./server-config');
+    serverConfig = require('./server-config'),
+    masterNode = require('../lib/master-node');
 
 // Create the actual server that the test server acts as a proxy for.
-function createTargetServer() {
+function createTargetServer(config) {
     function getHandler(req, res, next) {
         console.log('target server: get is called');
         res.send('hello ' + req.params.name);
@@ -31,39 +30,14 @@ function createTargetServer() {
     server.head('/hello/:name', getHandler);
     server.post('/post', postHandler);
 
-    server.listen(serverConfig.targetServer.port, function () {
+    server.listen(config.port, function () {
         console.log('%s target server listening at %s', server.name, server.url);
     });
 }
 
-// Create the test server as a proxy to the actual server.
-function createTestServer() {
-    testServer.createServer({
-        serverMode: serverConfig.testServer.serverMode,
-        port: serverConfig.testServer.port,
-        targetServerUrl: serverConfig.targetServer.url,
-        databaseDirectory: 'C:\\Users\\coding\\Documents\\GitHub\\http-replay-server\\db-files\\',
-        requestFilter: function (req, resp) {
-            if (req.url.indexOf('\/hello') === 0) {
-                return false; // Ignore the intercept request
-            }
-            return true; // Process the intercept request
-        }
-    });
-}
-
-function createCacheServer() {
-    cacheServer.createServer({
-        port: serverConfig.cacheServer.port,
-        serverMode: serverConfig.cacheServer.serverMode,
-        targetServerUrl: serverConfig.targetServer.url,
-        databaseDirectory: 'C:\\Users\\coding\\Documents\\GitHub\\http-replay-server\\db-files\\'
-    });
-}
-
-createTargetServer();
-//createTestServer();
-createCacheServer();
+createTargetServer(serverConfig.targetServer);
 // test: http://localhost:9006/hello/some
+
+masterNode.createServer(serverConfig);
 
 

@@ -4,7 +4,7 @@ var unirest = require('unirest'),
     serverConfig = require('./server-config');
 
 function testGet() {
-    unirest.get(serverConfig.testServer.url + '/hello/get-someone')
+    unirest.get(serverConfig.httpReplayServer.url + '/hello/get-someone')
         .end(function (response) {
             console.log('test GET');
             console.log(response.body);
@@ -12,7 +12,7 @@ function testGet() {
 }
 
 function testPost() {
-    unirest.post(serverConfig.testServer.url + '/post')
+    unirest.post(serverConfig.httpReplayServer.url + '/post')
         .headers({ 'Accept': 'application/json' })
         .send({ 'name': 'post-someone' })
         .end(function (response) {
@@ -23,3 +23,5 @@ function testPost() {
 
 testGet();
 testPost();
+
+// post to master http://localhost:9003/setHttpReplayServerMode?mode=passive
